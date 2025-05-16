@@ -1,24 +1,54 @@
-import hashlib
+import pygame
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
+import time
 
-stored_logins = {
-    "user@example.com": hash_password("password123"),
-    "admin@example.com": hash_password("adminpass"),
-}
+pygame.init()
 
-def login (email,password):
-    if email in stored_logins:
-        return stored_logins[email] == hash_password(password)
-    return False
+CANVA_WIDTH = 400
+CANVA_HEIGHT = 400
+CELL_SIZE = 40
+ERASER_SIZE = 20
 
-if __name__ == "__main__":
-    email = input("Enter your email: ")
-    password = input("Enter your password: ")
+# Colors
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+PINK = (255, 182, 193)
 
-    if login(email, password):
-        print("Login successful!")
-    else:
-        print("Invalid email or password.")
+screen = pygame.display.set_mode((CANVA_WIDTH, CANVA_HEIGHT))
+pygame.display.set_caption("Enter effect in pygame")
 
+grid =[]
+for row in range(0, CANVA_HEIGHT,CELL_SIZE):
+    for col in range(0, CANVA_WIDTH,CELL_SIZE):
+        rect = pygame.Rect(col, row, CELL_SIZE, CELL_SIZE)
+        grid.append(rect)
+
+eraser = pygame.Rect(200,200, ERASER_SIZE,ERASER_SIZE)     
+
+running = True
+while running:
+    screen.fill(WHITE)
+
+    for rect in grid:
+        pygame.draw.rect(screen, BLUE, rect,)
+
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    eraser.topleft = (mouse_x, mouse_y) 
+
+    new_grid = []
+    for rect in grid:
+        if not eraser.colliderect(rect):
+            new_grid.append(rect)
+    grid = new_grid
+
+    pygame.draw.rect(screen, PINK, eraser)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        
+    pygame.display.flip()
+    time.sleep(0.05)    
+
+
+pygame.quit()
